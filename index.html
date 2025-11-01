@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor Aplikasi Google Play Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: white;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .dashboard {
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #4285f4;
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+            color: #4285f4;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4285f4;
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 500;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background-color: #4285f4;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3367d6;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: #34a853;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #2e9849;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: #ea4335;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #d33426;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background-color: #fbbc05;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background-color: #e6a704;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-sm {
+            padding: 8px 15px;
+            font-size: 0.9rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-active {
+            background-color: #e6f4ea;
+            color: #34a853;
+        }
+
+        .status-removed {
+            background-color: #fce8e6;
+            color: #ea4335;
+        }
+
+        .status-checking {
+            background-color: #e8f0fe;
+            color: #4285f4;
+        }
+
+        .status-notified {
+            background-color: #fff8e1;
+            color: #f57c00;
+        }
+
+        .system-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .system-info p {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            animation: modalAppear 0.3s ease;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-content h3 {
+            margin-bottom: 15px;
+            color: #4285f4;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            border-top: 1px solid #eee;
+            background: #f8f9fa;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .batch-helper {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .log-container {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 10px;
+            background: #f9f9f9;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .log-time {
+            color: #666;
+            margin-right: 10px;
+        }
+
+        .log-info { color: #4285f4; }
+        .log-success { color: #34a853; }
+        .log-warning { color: #fbbc05; }
+        .log-error { color: #ea4335; }
+
+        .success-note {
+            background: #e8f5e8;
+            border: 1px solid #c8e6c9;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #4caf50;
+        }
+
+        .detection-info {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #2196f3;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            header h1 { font-size: 2rem; }
+            .stats { grid-template-columns: 1fr; }
+            .card { padding: 15px; }
+            th, td { padding: 8px 10px; }
+            .btn { width: 100%; justify-content: center; margin-bottom: 10px; }
+            .modal-content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fab fa-google-play"></i> Monitor Aplikasi Play Store</h1>
+            <p>Pantau status aplikasi Google Play Store dan dapatkan notifikasi melalui Telegram ketika aplikasi dihapus</p>
+        </header>
+
+        <div class="dashboard">
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>Total Aplikasi</h3>
+                    <span id="total-apps">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Aktif</h3>
+                    <span id="active-apps">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Dihapus</h3>
+                    <span id="removed-apps">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Notifikasi Terkirim</h3>
+                    <span id="notifications-sent">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2><i class="fas fa-plus-circle"></i> Tambah Aplikasi</h2>
+                <div class="form-group">
+                    <label for="app-id">ID Aplikasi (Package Name):</label>
+                    <input type="text" id="app-id" placeholder="Contoh: com.example.app">
+                </div>
+                <div class="form-group">
+                    <label for="app-url">URL Aplikasi Play Store:</label>
+                    <input type="url" id="app-url" placeholder="https://play.google.com/store/apps/details?id=...">
+                </div>
+                <button id="add-app-btn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Tambah Aplikasi
+                </button>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-layer-group"></i> Tambah Aplikasi Secara Massal</h2>
+                <div class="form-group">
+                    <label for="batch-input">Masukkan data aplikasi (Format: ID Aplikasi [spasi] URL, satu per baris):</label>
+                    <textarea id="batch-input" rows="5" placeholder="com.example.app1 https://play.google.com/store/apps/details?id=com.example.app1&#10;com.example.app2 https://play.google.com/store/apps/details?id=com.example.app2"></textarea>
+                    <div class="batch-helper">
+                        <i class="fas fa-info-circle"></i> Pisahkan ID Aplikasi dan URL dengan spasi. Satu aplikasi per baris.
+                    </div>
+                </div>
+                <button id="batch-add-btn" class="btn btn-primary">
+                    <i class="fas fa-layer-group"></i> Tambah Massal
+                </button>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-list"></i> Daftar Aplikasi yang Dimonitor</h2>
+                <div class="table-container">
+                    <table id="apps-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="select-all"></th>
+                                <th>ID Aplikasi</th>
+                                <th>URL</th>
+                                <th>Status</th>
+                                <th>Terakhir Diperiksa</th>
+                                <th>Notifikasi</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="apps-list">
+                            <!-- Daftar aplikasi akan dimuat di sini -->
+                        </tbody>
+                    </table>
+                </div>
+                <button id="batch-delete-btn" class="btn btn-danger" disabled>
+                    <i class="fas fa-trash"></i> Hapus yang Dipilih
+                </button>
+            </div>
+
+            <div class="card">
+                <h2><i class="fab fa-telegram"></i> Konfigurasi Bot Telegram</h2>
+
+                <div class="success-note">
+                    <h3><i class="fas fa-check-circle"></i> BOT BERHASIL DIKONFIGURASI!</h3>
+                    <p><strong>Token:</strong> 8320390995:AAEGDxgSGstRjl6HDbx_J81as0cj-Rt0NmM</p>
+                    <p><strong>Group Chat:</strong> -1002754693655</p>
+                    <p>Bot sudah siap mengirim notifikasi!</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bot-token">Token Bot Telegram:</label>
+                    <input type="text" id="bot-token" placeholder="Masukkan token bot Anda" value="8320390995:AAEGDxgSGstRjl6HDbx_J81as0cj-Rt0NmM">
+                </div>
+                <div class="form-group">
+                    <label for="chat-id">ID Grup/Channel Telegram:</label>
+                    <input type="text" id="chat-id" placeholder="Contoh: -1001234567890" value="-1002754693655">
+                </div>
+                <div class="form-group">
+                    <label for="message-template">Template Pesan Notifikasi:</label>
+                    <textarea id="message-template" rows="3">🚨 PERINGATAN! Aplikasi {app_id} telah dihapus dari Google Play Store!
+
+📱 ID Package: {app_id}
+🔗 URL: {app_url}
+
+⏰ Waktu: {timestamp}
+
+Silakan periksa aplikasi ini untuk tindakan lebih lanjut.</textarea>
+                </div>
+                <button id="save-bot-config" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Simpan Konfigurasi Bot
+                </button>
+                <button id="test-bot" class="btn btn-warning">
+                    <i class="fas fa-paper-plane"></i> Test Bot
+                </button>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-info-circle"></i> Informasi Sistem</h2>
+                <div class="system-info">
+                    <p><strong>Status Monitoring:</strong> <span id="monitoring-status">Aktif</span></p>
+                    <p><strong>Interval Pengecekan:</strong> <span id="check-interval">30</span> detik</p>
+                    <p><strong>Pengecekan Terakhir:</strong> <span id="last-check">-</span></p>
+                    <p><strong>Pengecekan Berikutnya:</strong> <span id="next-check">-</span></p>
+                    <p><strong>Notifikasi Dikirim:</strong> <span id="notifications-count">0</span></p>
+                    <p><strong>Bot Status:</strong> <span id="bot-status">Terkonfigurasi</span></p>
+                </div>
+                <button id="toggle-monitoring" class="btn btn-warning">
+                    <i class="fas fa-pause"></i> Hentikan Monitoring
+                </button>
+                <button id="check-all-btn" class="btn btn-success">
+                    <i class="fas fa-sync-alt"></i> Cek Semua Sekarang
+                </button>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-search"></i> Sistem Deteksi Sederhana</h2>
+                <div class="detection-info">
+                    <h3><i class="fas fa-bullseye"></i> Cara Kerja Deteksi:</h3>
+                    <p><strong>HANYA DETEKSI TITLE "Not Found":</strong></p>
+                    <ul>
+                        <li>✅ Sistem hanya membaca title halaman</li>
+                        <li>✅ Jika title = "Not Found" → Aplikasi dihapus</li>
+                        <li>✅ Jika title ≠ "Not Found" → Aplikasi aktif</li>
+                        <li>✅ Tidak ada false positive</li>
+                        <li>✅ Sangat akurat dan sederhana</li>
+                    </ul>
+                    <p><strong>Contoh Title Aplikasi Dihapus:</strong> <code>&lt;title&gt;Not Found&lt;/title&gt;</code></p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="check-interval-input">Interval Pengecekan (detik):</label>
+                    <input type="number" id="check-interval-input" value="30" min="10" max="300">
+                </div>
+                <button id="save-settings" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Simpan Pengaturan
+                </button>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-history"></i> Log Aktivitas</h2>
+                <div class="log-container" id="activity-log">
+                    <div class="log-entry"><span class="log-time">[Sistem]</span> <span class="log-info">Aplikasi dimulai. Monitoring aktif.</span></div>
+                    <div class="log-entry"><span class="log-time">[Sistem]</span> <span class="log-success">Bot Telegram berhasil dikonfigurasi!</span></div>
+                    <div class="log-entry"><span class="log-time">[Sistem]</span> <span class="log-info">Sistem deteksi: Hanya cek title 'Not Found'</span></div>
+                </div>
+                <button id="clear-log-btn" class="btn btn-secondary">
+                    <i class="fas fa-broom"></i> Bersihkan Log
+                </button>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2023 Monitor Aplikasi Play Store. Dibuat dengan <i class="fas fa-heart" style="color: #ea4335;"></i></p>
+        </footer>
+    </div>
+
+    <!-- Modal untuk konfirmasi -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-exclamation-triangle"></i> Konfirmasi</h3>
+            <p id="confirm-message">Apakah Anda yakin ingin menghapus aplikasi yang dipilih?</p>
+            <div class="modal-actions">
+                <button id="confirm-cancel" class="btn btn-secondary">Batal</button>
+                <button id="confirm-ok" class="btn btn-danger">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal untuk pesan sukses/error -->
+    <div id="message-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="message-title"><i class="fas fa-check-circle"></i> Sukses</h3>
+            <p id="message-text">Operasi berhasil dilakukan.</p>
+            <div class="modal-actions">
+                <button id="message-close" class="btn btn-primary">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Aplikasi utama untuk monitoring aplikasi Play Store - VERSI SEDERHANA & AKURAT
+        class PlayStoreMonitor {
+            constructor() {
+                this.apps = [];
+                this.botConfig = {
+                    token: '8320390995:AAEGDxgSGstRjl6HDbx_J81as0cj-Rt0NmM',
+                    chatId: '-1002754693655',
+                    messageTemplate: '🚨 PERINGATAN! Aplikasi {app_id} telah dihapus dari Google Play Store!\n\n📱 ID Package: {app_id}\n🔗 URL: {app_url}\n\n⏰ Waktu: {timestamp}\n\nSilakan periksa aplikasi ini untuk tindakan lebih lanjut.'
+                };
+                this.monitoringInterval = null;
+                this.isMonitoring = true;
+                this.checkInterval = 30000; // 30 detik
+                this.notificationsSent = 0;
+                this.activityLog = [];
+                
+                this.initializeApp();
+            }
+            
+            // Inisialisasi aplikasi
+            initializeApp() {
+                this.loadData();
+                this.setupEventListeners();
+                this.updateUI();
+                this.startMonitoring();
+                this.addToLog('Aplikasi dimulai. Monitoring aktif.', 'info');
+                this.addToLog('✅ Bot Telegram berhasil dikonfigurasi!', 'success');
+                this.addToLog('🎯 Sistem deteksi: Hanya cek title "Not Found"', 'info');
+            }
+            
+            // Setup event listeners
+            setupEventListeners() {
+                // Tombol tambah aplikasi
+                document.getElementById('add-app-btn').addEventListener('click', () => {
+                    this.addSingleApp();
+                });
+                
+                // Tombol tambah massal
+                document.getElementById('batch-add-btn').addEventListener('click', () => {
+                    this.batchAddApps();
+                });
+                
+                // Tombol hapus massal
+                document.getElementById('batch-delete-btn').addEventListener('click', () => {
+                    this.showDeleteConfirmation();
+                });
+                
+                // Pilih semua checkbox
+                document.getElementById('select-all').addEventListener('change', (e) => {
+                    this.toggleSelectAll(e.target.checked);
+                });
+                
+                // Simpan konfigurasi bot
+                document.getElementById('save-bot-config').addEventListener('click', () => {
+                    this.saveBotConfig();
+                });
+                
+                // Test bot
+                document.getElementById('test-bot').addEventListener('click', () => {
+                    this.testBot();
+                });
+                
+                // Simpan pengaturan
+                document.getElementById('save-settings').addEventListener('click', () => {
+                    this.saveSettings();
+                });
+                
+                // Toggle monitoring
+                document.getElementById('toggle-monitoring').addEventListener('click', () => {
+                    this.toggleMonitoring();
+                });
+                
+                // Cek semua aplikasi
+                document.getElementById('check-all-btn').addEventListener('click', () => {
+                    this.checkAllApps();
+                });
+                
+                // Bersihkan log
+                document.getElementById('clear-log-btn').addEventListener('click', () => {
+                    this.clearLog();
+                });
+                
+                // Modal events
+                document.getElementById('confirm-cancel').addEventListener('click', () => {
+                    this.hideModal('confirm-modal');
+                });
+                
+                document.getElementById('confirm-ok').addEventListener('click', () => {
+                    this.batchDeleteApps();
+                    this.hideModal('confirm-modal');
+                });
+                
+                document.getElementById('message-close').addEventListener('click', () => {
+                    this.hideModal('message-modal');
+                });
+            }
+            
+            // Muat data dari localStorage
+            loadData() {
+                try {
+                    // Muat daftar aplikasi
+                    const savedApps = localStorage.getItem('playstore-monitor-apps');
+                    if (savedApps) {
+                        this.apps = JSON.parse(savedApps);
+                    }
+                    
+                    // Muat konfigurasi bot
+                    const savedBotConfig = localStorage.getItem('playstore-monitor-bot-config');
+                    if (savedBotConfig) {
+                        this.botConfig = { ...this.botConfig, ...JSON.parse(savedBotConfig) };
+                    }
+                    
+                    // Muat notifikasi yang telah dikirim
+                    const savedNotifications = localStorage.getItem('playstore-monitor-notifications');
+                    if (savedNotifications) {
+                        this.notificationsSent = parseInt(savedNotifications) || 0;
+                    }
+                    
+                    // Muat log aktivitas
+                    const savedLog = localStorage.getItem('playstore-monitor-log');
+                    if (savedLog) {
+                        this.activityLog = JSON.parse(savedLog);
+                        this.updateLogUI();
+                    }
+
+                    // Muat interval
+                    const savedInterval = localStorage.getItem('playstore-monitor-interval');
+                    if (savedInterval) {
+                        this.checkInterval = parseInt(savedInterval);
+                    }
+                } catch (error) {
+                    console.error('Error loading data:', error);
+                    this.addToLog('Error memuat data: ' + error.message, 'error');
+                }
+            }
+            
+            // Simpan data ke localStorage
+            saveData() {
+                try {
+                    localStorage.setItem('playstore-monitor-apps', JSON.stringify(this.apps));
+                    localStorage.setItem('playstore-monitor-bot-config', JSON.stringify(this.botConfig));
+                    localStorage.setItem('playstore-monitor-notifications', this.notificationsSent.toString());
+                    localStorage.setItem('playstore-monitor-log', JSON.stringify(this.activityLog));
+                    localStorage.setItem('playstore-monitor-interval', this.checkInterval.toString());
+                } catch (error) {
+                    console.error('Error saving data:', error);
+                    this.addToLog('Error menyimpan data: ' + error.message, 'error');
+                }
+            }
+            
+            // Update UI dengan data terkini
+            updateUI() {
+                this.updateAppsTable();
+                this.updateStats();
+                this.updateBotConfigUI();
+                this.updateMonitoringUI();
+                this.updateSettingsUI();
+            }
+
+            // Update pengaturan di UI
+            updateSettingsUI() {
+                document.getElementById('check-interval-input').value = this.checkInterval / 1000;
+            }
+            
+            // Update tabel aplikasi
+            updateAppsTable() {
+                const tbody = document.getElementById('apps-list');
+                tbody.innerHTML = '';
+                
+                if (this.apps.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">Tidak ada aplikasi yang dimonitor. Tambahkan aplikasi untuk memulai monitoring.</td></tr>';
+                    return;
+                }
+                
+                this.apps.forEach((app, index) => {
+                    const row = document.createElement('tr');
+                    let statusText = '';
+                    let statusClass = '';
+                    
+                    switch (app.status) {
+                        case 'active':
+                            statusText = 'Aktif';
+                            statusClass = 'status-active';
+                            break;
+                        case 'removed':
+                            statusText = 'Dihapus';
+                            statusClass = 'status-removed';
+                            break;
+                        case 'checking':
+                            statusText = 'Memeriksa...';
+                            statusClass = 'status-checking';
+                            break;
+                        case 'notified':
+                            statusText = 'Sudah Diberitahu';
+                            statusClass = 'status-notified';
+                            break;
+                        default:
+                            statusText = 'Aktif';
+                            statusClass = 'status-active';
+                    }
+                    
+                    row.innerHTML = `
+                        <td><input type="checkbox" class="app-checkbox" data-index="${index}"></td>
+                        <td>${this.escapeHtml(app.id)}</td>
+                        <td><a href="${this.escapeHtml(app.url)}" target="_blank" title="Buka di tab baru">${this.escapeHtml(app.url)}</a></td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${app.lastChecked ? new Date(app.lastChecked).toLocaleString('id-ID') : '-'}</td>
+                        <td>${app.notificationSent ? '✅ ' + new Date(app.notificationSent).toLocaleString('id-ID') : '❌ Belum'}</td>
+                        <td>
+                            <button class="btn btn-secondary btn-sm check-now" data-index="${index}"><i class="fas fa-sync-alt"></i> Cek</button>
+                            <button class="btn btn-danger btn-sm delete-app" data-index="${index}"><i class="fas fa-trash"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                // Tambah event listeners untuk tombol aksi
+                document.querySelectorAll('.check-now').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const index = e.target.closest('button').getAttribute('data-index');
+                        this.checkAppStatus(index, true);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-app').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const index = e.target.closest('button').getAttribute('data-index');
+                        this.deleteApp(index);
+                    });
+                });
+                
+                document.querySelectorAll('.app-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', () => {
+                        this.updateBatchDeleteButton();
+                    });
+                });
+                
+                this.updateBatchDeleteButton();
+            }
+            
+            // Update statistik
+            updateStats() {
+                const totalApps = this.apps.length;
+                const activeApps = this.apps.filter(app => app.status === 'active').length;
+                const removedApps = this.apps.filter(app => app.status === 'removed' || app.status === 'notified').length;
+                
+                document.getElementById('total-apps').textContent = totalApps;
+                document.getElementById('active-apps').textContent = activeApps;
+                document.getElementById('removed-apps').textContent = removedApps;
+                document.getElementById('notifications-sent').textContent = this.notificationsSent;
+                document.getElementById('notifications-count').textContent = this.notificationsSent;
+            }
+            
+            // Update konfigurasi bot di UI
+            updateBotConfigUI() {
+                document.getElementById('bot-token').value = this.botConfig.token;
+                document.getElementById('chat-id').value = this.botConfig.chatId;
+                document.getElementById('message-template').value = this.botConfig.messageTemplate;
+                
+                // Update status bot
+                const botStatus = document.getElementById('bot-status');
+                if (this.botConfig.token && this.botConfig.chatId) {
+                    botStatus.textContent = 'Terkonfigurasi';
+                    botStatus.style.color = '#34a853';
+                } else {
+                    botStatus.textContent = 'Belum Dikonfigurasi';
+                    botStatus.style.color = '#ea4335';
+                }
+            }
+            
+            // Update status tombol hapus massal
+            updateBatchDeleteButton() {
+                const checkedBoxes = document.querySelectorAll('.app-checkbox:checked');
+                const deleteBtn = document.getElementById('batch-delete-btn');
+                const selectAll = document.getElementById('select-all');
+                
+                if (checkedBoxes.length > 0) {
+                    deleteBtn.disabled = false;
+                    deleteBtn.innerHTML = `<i class="fas fa-trash"></i> Hapus ${checkedBoxes.length} Aplikasi`;
+                } else {
+                    deleteBtn.disabled = true;
+                    deleteBtn.innerHTML = `<i class="fas fa-trash"></i> Hapus yang Dipilih`;
+                }
+                
+                // Update select all checkbox
+                if (checkedBoxes.length === this.apps.length && this.apps.length > 0) {
+                    selectAll.checked = true;
+                    selectAll.indeterminate = false;
+                } else if (checkedBoxes.length > 0) {
+                    selectAll.checked = false;
+                    selectAll.indeterminate = true;
+                } else {
+                    selectAll.checked = false;
+                    selectAll.indeterminate = false;
+                }
+            }
+            
+            // Tambah aplikasi tunggal
+            addSingleApp() {
+                const appId = document.getElementById('app-id').value.trim();
+                const appUrl = document.getElementById('app-url').value.trim();
+                
+                if (!appId || !appUrl) {
+                    this.showMessage('Error', 'ID Aplikasi dan URL harus diisi!', 'error');
+                    return;
+                }
+                
+                if (!this.isValidUrl(appUrl)) {
+                    this.showMessage('Error', 'URL tidak valid! Pastikan URL dimulai dengan https:// dan mengarah ke Google Play Store', 'error');
+                    return;
+                }
+                
+                // Cek apakah aplikasi sudah ada
+                if (this.apps.some(app => app.id === appId)) {
+                    this.showMessage('Error', `Aplikasi dengan ID ${appId} sudah ada!`, 'error');
+                    return;
+                }
+                
+                const newApp = {
+                    id: appId,
+                    url: appUrl,
+                    status: 'active',
+                    lastChecked: null,
+                    previousStatus: 'active',
+                    notificationSent: null,
+                    checkCount: 0
+                };
+                
+                this.apps.push(newApp);
+                this.saveData();
+                this.updateUI();
+                
+                // Reset form
+                document.getElementById('app-id').value = '';
+                document.getElementById('app-url').value = '';
+                
+                this.addToLog(`Aplikasi "${appId}" ditambahkan ke monitoring.`, 'success');
+                this.showMessage('Sukses', 'Aplikasi berhasil ditambahkan!', 'success');
+            }
+            
+            // Tambah aplikasi secara massal
+            batchAddApps() {
+                const batchInput = document.getElementById('batch-input').value.trim();
+                
+                if (!batchInput) {
+                    this.showMessage('Error', 'Masukkan data aplikasi!', 'error');
+                    return;
+                }
+                
+                const lines = batchInput.split('\n');
+                let addedCount = 0;
+                let errorCount = 0;
+                let duplicateCount = 0;
+                
+                lines.forEach(line => {
+                    const trimmedLine = line.trim();
+                    if (!trimmedLine) return;
+                    
+                    // Pisahkan ID dan URL dengan spasi (ambil spasi pertama sebagai pemisah)
+                    const firstSpaceIndex = trimmedLine.indexOf(' ');
+                    if (firstSpaceIndex === -1) {
+                        errorCount++;
+                        return;
+                    }
+                    
+                    const appId = trimmedLine.substring(0, firstSpaceIndex).trim();
+                    const appUrl = trimmedLine.substring(firstSpaceIndex + 1).trim();
+                    
+                    if (appId && appUrl && this.isValidUrl(appUrl)) {
+                        // Cek apakah aplikasi sudah ada
+                        if (!this.apps.some(app => app.id === appId)) {
+                            this.apps.push({
+                                id: appId,
+                                url: appUrl,
+                                status: 'active',
+                                lastChecked: null,
+                                previousStatus: 'active',
+                                notificationSent: null,
+                                checkCount: 0
+                            });
+                            addedCount++;
+                        } else {
+                            duplicateCount++;
+                        }
+                    } else {
+                        errorCount++;
+                    }
+                });
+                
+                if (addedCount > 0) {
+                    this.saveData();
+                    this.updateUI();
+                }
+                
+                let message = '';
+                if (addedCount > 0) {
+                    message += `Berhasil menambahkan ${addedCount} aplikasi. `;
+                    this.addToLog(`${addedCount} aplikasi ditambahkan secara massal.`, 'success');
+                }
+                if (duplicateCount > 0) {
+                    message += `${duplicateCount} aplikasi duplikat diabaikan. `;
+                }
+                if (errorCount > 0) {
+                    message += `${errorCount} entri gagal ditambahkan (format salah).`;
+                }
+                
+                this.showMessage(
+                    addedCount > 0 ? 'Sukses' : 'Peringatan',
+                    message || 'Tidak ada aplikasi yang ditambahkan.',
+                    addedCount > 0 ? 'success' : 'warning'
+                );
+                
+                // Reset form
+                document.getElementById('batch-input').value = '';
+            }
+            
+            // Hapus aplikasi
+            deleteApp(index) {
+                const app = this.apps[index];
+                this.apps.splice(index, 1);
+                this.saveData();
+                this.updateUI();
+                this.addToLog(`Aplikasi "${app.id}" dihapus dari monitoring.`, 'info');
+                this.showMessage('Sukses', 'Aplikasi berhasil dihapus!', 'success');
+            }
+            
+            // Hapus aplikasi secara massal
+            batchDeleteApps() {
+                const checkedBoxes = document.querySelectorAll('.app-checkbox:checked');
+                const indices = Array.from(checkedBoxes).map(checkbox => 
+                    parseInt(checkbox.getAttribute('data-index'))
+                ).sort((a, b) => b - a); // Urutkan dari besar ke kecil untuk menghindari masalah index
+                
+                if (indices.length === 0) return;
+                
+                const appNames = indices.map(i => this.apps[i].id).join(', ');
+                
+                indices.forEach(index => {
+                    this.apps.splice(index, 1);
+                });
+                
+                this.saveData();
+                this.updateUI();
+                this.addToLog(`${indices.length} aplikasi dihapus: ${appNames}`, 'info');
+                this.showMessage('Sukses', `${indices.length} aplikasi berhasil dihapus!`, 'success');
+            }
+            
+            // Toggle pilih semua
+            toggleSelectAll(checked) {
+                document.querySelectorAll('.app-checkbox').forEach(checkbox => {
+                    checkbox.checked = checked;
+                });
+                this.updateBatchDeleteButton();
+            }
+            
+            // Tampilkan konfirmasi hapus
+            showDeleteConfirmation() {
+                const checkedCount = document.querySelectorAll('.app-checkbox:checked').length;
+                
+                if (checkedCount === 0) {
+                    this.showMessage('Peringatan', 'Pilih setidaknya satu aplikasi untuk dihapus!', 'warning');
+                    return;
+                }
+                
+                document.getElementById('confirm-message').textContent = 
+                    `Apakah Anda yakin ingin menghapus ${checkedCount} aplikasi? Tindakan ini tidak dapat dibatalkan.`;
+                this.showModal('confirm-modal');
+            }
+            
+            // Cek status aplikasi - VERSI SANGAT SEDERHANA & AKURAT
+            async checkAppStatus(index, manualCheck = false) {
+                const app = this.apps[index];
+                
+                // Tandai sedang memeriksa
+                app.status = 'checking';
+                this.updateAppsTable();
+                
+                try {
+                    // Cek title halaman saja - SANGAT SEDERHANA
+                    const pageTitle = await this.getPageTitle(app.url);
+                    
+                    app.lastChecked = new Date().toISOString();
+                    app.checkCount = (app.checkCount || 0) + 1;
+                    
+                    // LOGIC SANGAT SEDERHANA: Jika title = "Not Found" → dihapus
+                    if (pageTitle && pageTitle.trim() === 'Not Found') {
+                        // APLIKASI DIHAPUS - TERDETEKSI!
+                        app.status = 'removed';
+                        this.addToLog(`🚨 APLIKASI "${app.id}" TERDETEKSI DIHAPUS! Title: "${pageTitle}"`, 'warning');
+                        
+                        // Kirim notifikasi hanya jika sebelumnya aktif dan belum pernah dikirim notifikasi
+                        if (app.previousStatus === 'active' && !app.notificationSent) {
+                            const success = await this.sendTelegramNotification(app);
+                            if (success) {
+                                app.notificationSent = new Date().toISOString();
+                                app.status = 'notified';
+                                this.addToLog(`✅ Notifikasi berhasil dikirim untuk aplikasi "${app.id}"`, 'success');
+                            }
+                        } else if (app.notificationSent) {
+                            app.status = 'notified';
+                        }
+                    } else {
+                        // APLIKASI AKTIF
+                        app.status = 'active';
+                        if (manualCheck) {
+                            this.addToLog(`Aplikasi "${app.id}" diperiksa: ✅ AKTIF (Title: "${pageTitle}")`, 'info');
+                        }
+                    }
+                    
+                    app.previousStatus = app.status;
+                    this.saveData();
+                    this.updateUI();
+                    
+                } catch (error) {
+                    console.error('Error checking app status:', error);
+                    // Jika error, pertahankan status sebelumnya
+                    app.status = app.previousStatus || 'active';
+                    app.lastChecked = new Date().toISOString();
+                    this.updateAppsTable();
+                    this.addToLog(`Gagal memeriksa aplikasi "${app.id}": ${error.message}`, 'error');
+                }
+            }
+            
+            // Ambil title halaman - SANGAT SEDERHANA
+            async getPageTitle(url) {
+                try {
+                    // Gunakan CORS proxy
+                    const proxyUrl = 'https://api.allorigins.win/raw?url=';
+                    const targetUrl = encodeURIComponent(url);
+                    
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000);
+                    
+                    const response = await fetch(proxyUrl + targetUrl, {
+                        method: 'GET',
+                        signal: controller.signal,
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                        }
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    
+                    const html = await response.text();
+                    
+                    // EKSTRAK TITLE SANGAT SEDERHANA
+                    const titleMatch = html.match(/<title>(.*?)<\/title>/i);
+                    if (titleMatch && titleMatch[1]) {
+                        return titleMatch[1].trim();
+                    }
+                    
+                    return null;
+                    
+                } catch (error) {
+                    if (error.name === 'AbortError') {
+                        throw new Error('Timeout');
+                    }
+                    throw error;
+                }
+            }
+            
+            // Simpan pengaturan
+            saveSettings() {
+                const interval = parseInt(document.getElementById('check-interval-input').value) * 1000;
+                
+                if (interval < 10000 || interval > 300000) {
+                    this.showMessage('Error', 'Interval harus antara 10-300 detik!', 'error');
+                    return;
+                }
+                
+                this.checkInterval = interval;
+                this.saveData();
+                this.startMonitoring();
+                
+                this.addToLog(`Interval monitoring diubah menjadi ${interval/1000} detik`, 'success');
+                this.showMessage('Sukses', 'Pengaturan berhasil disimpan!', 'success');
+            }
+            
+            // Mulai monitoring
+            startMonitoring() {
+                if (this.monitoringInterval) {
+                    clearInterval(this.monitoringInterval);
+                }
+                
+                this.monitoringInterval = setInterval(() => {
+                    if (this.isMonitoring && this.apps.length > 0) {
+                        this.checkAllApps();
+                        this.updateLastCheckTime();
+                    }
+                }, this.checkInterval);
+                
+                this.updateMonitoringUI();
+                this.updateLastCheckTime();
+            }
+            
+            // Cek semua aplikasi
+            async checkAllApps() {
+                if (this.apps.length === 0) return;
+                
+                this.addToLog(`Memulai pengecekan ${this.apps.length} aplikasi...`, 'info');
+                
+                // Hanya cek aplikasi yang masih aktif (belum dihapus)
+                const activeApps = this.apps.filter(app => app.status === 'active');
+                
+                for (let i = 0; i < activeApps.length; i++) {
+                    const appIndex = this.apps.findIndex(app => app.id === activeApps[i].id);
+                    if (appIndex !== -1) {
+                        await this.checkAppStatus(appIndex);
+                        // Tunggu sebentar antara pengecekan
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                    }
+                }
+                
+                this.addToLog(`Pengecekan ${activeApps.length} aplikasi aktif selesai.`, 'success');
+            }
+            
+            // Update waktu pengecekan terakhir
+            updateLastCheckTime() {
+                const now = new Date();
+                document.getElementById('last-check').textContent = now.toLocaleString('id-ID');
+                
+                const nextCheck = new Date(now.getTime() + this.checkInterval);
+                document.getElementById('next-check').textContent = nextCheck.toLocaleString('id-ID');
+            }
+            
+            // Toggle monitoring
+            toggleMonitoring() {
+                this.isMonitoring = !this.isMonitoring;
+                this.updateMonitoringUI();
+                
+                const status = this.isMonitoring ? 'diaktifkan' : 'dihentikan';
+                const logType = this.isMonitoring ? 'success' : 'warning';
+                this.addToLog(`Monitoring ${status}.`, logType);
+                this.showMessage('Info', `Monitoring ${status}!`, 'info');
+            }
+            
+            // Update UI status monitoring
+            updateMonitoringUI() {
+                const statusElement = document.getElementById('monitoring-status');
+                const toggleButton = document.getElementById('toggle-monitoring');
+                
+                if (this.isMonitoring) {
+                    statusElement.textContent = 'Aktif';
+                    statusElement.style.color = '#34a853';
+                    toggleButton.innerHTML = '<i class="fas fa-pause"></i> Hentikan Monitoring';
+                    toggleButton.className = 'btn btn-warning';
+                } else {
+                    statusElement.textContent = 'Dihentikan';
+                    statusElement.style.color = '#ea4335';
+                    toggleButton.innerHTML = '<i class="fas fa-play"></i> Mulai Monitoring';
+                    toggleButton.className = 'btn btn-success';
+                }
+            }
+            
+            // Simpan konfigurasi bot
+            saveBotConfig() {
+                const token = document.getElementById('bot-token').value.trim();
+                const chatId = document.getElementById('chat-id').value.trim();
+                const messageTemplate = document.getElementById('message-template').value.trim();
+                
+                if (!token || !chatId) {
+                    this.showMessage('Error', 'Token dan Chat ID harus diisi!', 'error');
+                    return;
+                }
+                
+                this.botConfig.token = token;
+                this.botConfig.chatId = chatId;
+                this.botConfig.messageTemplate = messageTemplate || this.botConfig.messageTemplate;
+                
+                this.saveData();
+                this.updateBotConfigUI();
+                this.addToLog('Konfigurasi bot diperbarui.', 'success');
+                this.showMessage('Sukses', 'Konfigurasi bot berhasil disimpan!', 'success');
+            }
+            
+            // Test bot
+            async testBot() {
+                if (!this.botConfig.token || !this.botConfig.chatId) {
+                    this.showMessage('Error', 'Token dan Chat ID harus diisi terlebih dahulu!', 'error');
+                    return;
+                }
+                
+                const testButton = document.getElementById('test-bot');
+                const originalText = testButton.innerHTML;
+                testButton.innerHTML = '<span class="spinner"></span> Mengirim...';
+                testButton.disabled = true;
+                
+                try {
+                    const testMessage = '✅ Test notifikasi dari Play Store Monitor!\n\nBot Telegram berhasil dikonfigurasi dan siap mengirim notifikasi ketika aplikasi dihapus dari Play Store.\n\n⏰ Waktu: ' + new Date().toLocaleString('id-ID');
+                    
+                    const success = await this.sendTelegramMessage(testMessage);
+                    
+                    if (success) {
+                        this.addToLog('Pesan test berhasil dikirim ke Telegram.', 'success');
+                        this.showMessage('Sukses', 'Pesan test berhasil dikirim ke grup!', 'success');
+                    } else {
+                        throw new Error('Gagal mengirim pesan test');
+                    }
+                } catch (error) {
+                    console.error('Error testing bot:', error);
+                    this.addToLog('Gagal mengirim pesan test: ' + error.message, 'error');
+                    
+                    this.showMessage('Error', 'Gagal mengirim pesan test: ' + error.message, 'error');
+                } finally {
+                    testButton.innerHTML = originalText;
+                    testButton.disabled = false;
+                }
+            }
+            
+            // Kirim notifikasi Telegram
+            async sendTelegramNotification(app) {
+                if (!this.botConfig.token || !this.botConfig.chatId) {
+                    this.addToLog(`Gagal mengirim notifikasi: Bot belum dikonfigurasi`, 'error');
+                    return false;
+                }
+                
+                try {
+                    const timestamp = new Date().toLocaleString('id-ID');
+                    const message = this.botConfig.messageTemplate
+                        .replace(/{app_id}/g, app.id)
+                        .replace(/{app_url}/g, app.url)
+                        .replace(/{timestamp}/g, timestamp);
+                    
+                    const success = await this.sendTelegramMessage(message);
+                    
+                    if (success) {
+                        this.notificationsSent++;
+                        this.saveData();
+                        this.updateStats();
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Error sending Telegram notification:', error);
+                    this.addToLog(`Error mengirim notifikasi: ${error.message}`, 'error');
+                    return false;
+                }
+            }
+            
+            // Kirim pesan ke Telegram
+            async sendTelegramMessage(message) {
+                const url = `https://api.telegram.org/bot${this.botConfig.token}/sendMessage`;
+                
+                try {
+                    const payload = {
+                        chat_id: this.botConfig.chatId,
+                        text: message,
+                        parse_mode: 'HTML'
+                    };
+                    
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.description || `HTTP ${response.status}`);
+                    }
+                    
+                    return true;
+                } catch (error) {
+                    console.error('Error sending Telegram message:', error);
+                    throw error;
+                }
+            }
+            
+            // Validasi URL
+            isValidUrl(url) {
+                try {
+                    const urlObj = new URL(url);
+                    return urlObj.protocol === 'https:' && urlObj.hostname.includes('play.google.com');
+                } catch {
+                    return false;
+                }
+            }
+            
+            // Escape HTML untuk keamanan
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            // Tambah entri ke log
+            addToLog(message, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString('id-ID');
+                this.activityLog.push({ timestamp, message, type });
+                
+                // Batasi log hingga 100 entri
+                if (this.activityLog.length > 100) {
+                    this.activityLog.shift();
+                }
+                
+                this.saveData();
+                this.updateLogUI();
+            }
+            
+            // Update tampilan log
+            updateLogUI() {
+                const logContainer = document.getElementById('activity-log');
+                logContainer.innerHTML = '';
+                
+                this.activityLog.forEach(entry => {
+                    const logEntry = document.createElement('div');
+                    logEntry.className = 'log-entry';
+                    logEntry.innerHTML = `
+                        <span class="log-time">[${entry.timestamp}]</span>
+                        <span class="log-${entry.type}">${this.escapeHtml(entry.message)}</span>
+                    `;
+                    logContainer.appendChild(logEntry);
+                });
+                
+                // Scroll ke bawah
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+            
+            // Bersihkan log
+            clearLog() {
+                this.activityLog = [];
+                this.updateLogUI();
+                this.addToLog('Log aktivitas dibersihkan.', 'info');
+            }
+            
+            // Tampilkan modal
+            showModal(modalId) {
+                document.getElementById(modalId).classList.add('active');
+            }
+            
+            // Sembunyikan modal
+            hideModal(modalId) {
+                document.getElementById(modalId).classList.remove('active');
+            }
+            
+            // Tampilkan pesan
+            showMessage(title, text, type = 'info') {
+                const titleElement = document.getElementById('message-title');
+                const textElement = document.getElementById('message-text');
+                
+                titleElement.textContent = title;
+                textElement.textContent = text;
+                
+                // Set ikon dan warna berdasarkan jenis pesan
+                let icon = 'info-circle';
+                let color = '#4285f4';
+                
+                switch (type) {
+                    case 'success':
+                        icon = 'check-circle';
+                        color = '#34a853';
+                        break;
+                    case 'error':
+                        icon = 'exclamation-circle';
+                        color = '#ea4335';
+                        break;
+                    case 'warning':
+                        icon = 'exclamation-triangle';
+                        color = '#fbbc05';
+                        break;
+                }
+                
+                titleElement.innerHTML = `<i class="fas fa-${icon}"></i> ${title}`;
+                titleElement.style.color = color;
+                
+                this.showModal('message-modal');
+            }
+        }
+
+        // Inisialisasi aplikasi ketika halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            window.playStoreMonitor = new PlayStoreMonitor();
+        });
+    </script>
+</body>
+</html>
